@@ -16,18 +16,16 @@ const server = express();
   //morgan is a logger, shows messages in the server terminal about what your api requests are doing (less console.log'ing needed)
   server.use(logger('dev'));
 
+
 //custom middleware
   //practice building our own middleware with one that logs request type for us
   //understanding the importance of "next"
   server.use(typeLogger);
-
+  server.use(addName);
+  //server.use(moodyGatekeeper);
+  // server.use(lockout);
 //router
   server.use('/api/hubs', hubsRouter);
-
-
-
-
-
 
 
 
@@ -42,10 +40,34 @@ server.get('/', (req, res) => {
 
 
 //best practice to declare custom middleware at the bottom
-function typeLogger(req, res, next) {
-  console.log(`${req.method} = REQUEST`);
-  next();
-}
+  //create custom middleware that console logs which type of request was made:
+  function typeLogger(req, res, next) {
+    console.log(`${req.method} = REQUEST`);
+    next();
+  }
+
+  //create custom middleware that adds a name to the welcome message on the root '/':
+  function addName(req, res, next) {
+    req.name = req.name || "Your mom";
+    next();
+  }
+
+  //create custom middleware that targets res instead of req. Shouldn't throw an error:
+  function lockout(req, res, next) {
+    res.status(403).json({message: 'API Lockout'})
+  }
+
+  //create custom middleware that refuses access 1/3 of the time with a 403 error and "You shall not pass" message:
+  function moodyGatekeeper(req, res, next) {
+    const seconds = new Date().getSeconds();
+
+    if (seconds % 3 === 0) {
+      res.status(403).json({message: "You shall not pass"});
+    } else {
+      next();
+    }   
+  }
+  
 module.exports = server;
 
 

@@ -4,8 +4,13 @@ const hubsRouter = require('./hubs/hubs-router.js');
 
 const server = express();
 
+// built-in middleware parses the body for us
 server.use(express.json());
 
+//third-party middleware
+//similar to built-in in that someone else wrote it for us and we can just plug it in where we need it
+
+//router
 server.use('/api/hubs', hubsRouter);
 
 server.get('/', (req, res) => {
@@ -18,3 +23,5 @@ server.get('/', (req, res) => {
 });
 
 module.exports = server;
+
+
